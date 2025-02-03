@@ -4,9 +4,9 @@ function [vx,vy,vz,rel] = calc_flow3D(images ,xyzSig, tSig, wSig)
 % the calculations. To peform calculations on an entire timelapse, see
 % parse_flow.m
 %
-% Usage: [vx,vy,vz,rel] = calc_flow3D(images ,xyzSig, tSig, wSig)
+% USAGE: [vx,vy,vz,rel] = calc_flow3D(images ,xyzSig, tSig, wSig)
 %
-% Inputs:
+% INPUTS:
 % images = 4D matrix with dimensions N_X, N_Y, N_Z, N_T
 %           N_T should be odd as only the central timepoint will be analyzed.
 %           N_T must be greater than or equal to 3*tSig+1.
@@ -18,7 +18,7 @@ function [vx,vy,vz,rel] = calc_flow3D(images ,xyzSig, tSig, wSig)
 %           Larger values include a larger neighboorhood in the
 %           Lucas-Kanade constraint and will smooth over small features.
 %
-% Outputs:
+% OUTPUTS:
 % vx     = Velocity in the x direction, reported as pixels/frame
 % vy     = Velocity in the y direction, reported as pixels/frame
 % vz     = Velocity in the z direction, reported as pixels/frame
@@ -285,7 +285,9 @@ L3 = -((1 + wdz2.*sqrt(3)).*(2.*wdx2.^3 - 3.*wdx2.^2.*wdz2 - 3.*wdy2.*wdx2.^2 + 
     9*wdy2.*wdxy.^2 + 54*wdxy.*wdxz.*wdyz + 9*wdxz.^2.*wdz2 - 18*wdy2.*wdxz.^2 + 9*wdyz.^2.*wdz2 + ...
     9*wdy2.*wdyz.^2 + 2*wdz2.^3 - 3*wdy2.*wdz2.^2 - 3*wdy2.^2.*wdz2 + 2*wdy2.^3).^(1/3)) + 1/3*(wdx2 + wdz2 + wdy2);
 
+clear wdx2 wdxy wdxz wdxy wdy2 wdyz wdxz wdyz wdz2
+clear wdtx wdty wdtz
+
+% Final reliability calculation
 rel = real(min(rel,L3));
 clear L3
-
-
