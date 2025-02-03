@@ -157,12 +157,6 @@ clear dtI
 wdx2 = imfilter(imfilter(imfilter(dxI.*dxI, xFil5, 'replicate'), yFil5, 'replicate'), zFil5,'replicate');
 wdx2 = wdx2(:,:,:,2);
 
-wdy2 = imfilter(imfilter(imfilter(dyI.*dyI, xFil5, 'replicate'), yFil5, 'replicate'), zFil5,'replicate');
-wdy2 = wdy2(:,:,:,2);
-
-wdz2 = imfilter(imfilter(imfilter(dzI.*dzI, xFil5, 'replicate'), yFil5, 'replicate'), zFil5,'replicate');
-wdz2 = wdz2(:,:,:,2);
-
 wdxy = imfilter(imfilter(imfilter(dxI.*dyI, xFil5, 'replicate'), yFil5, 'replicate'), zFil5,'replicate');
 wdxy = wdxy(:,:,:,2);
 
@@ -174,7 +168,15 @@ clear dxI
 wdyz = imfilter(imfilter(imfilter(dzI.*dyI, xFil5, 'replicate'), yFil5, 'replicate'), zFil5,'replicate');
 wdyz = wdyz(:,:,:,2);
 
-clear dyI dzI
+wdy2 = imfilter(imfilter(imfilter(dyI.*dyI, xFil5, 'replicate'), yFil5, 'replicate'), zFil5,'replicate');
+wdy2 = wdy2(:,:,:,2);
+
+clear dyI
+
+wdz2 = imfilter(imfilter(imfilter(dzI.*dzI, xFil5, 'replicate'), yFil5, 'replicate'), zFil5,'replicate');
+wdz2 = wdz2(:,:,:,2);
+
+clear dzI
 clear xFil5 yFil5 zFil5
 
 
@@ -211,6 +213,7 @@ vy = -((determinant + eps).^-1).*((wdyz.*wdxz - wdxy.*wdz2).*wdtx + (wdx2.*wdz2 
 vz = -((determinant + eps).^-1).*((wdxy.*wdyz - wdy2.*wdxz).*wdtx + (wdxy.*wdxz - wdx2.*wdyz).*wdty + (wdx2.*wdy2 - wdxy.*wdxy).*wdtz);
 
 clear determinant
+clear wdtx wdty wdtz
 
 %% Eigenvalues for Reliability %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % solve det(A^T w A - lamda I) = 0
@@ -286,7 +289,6 @@ L3 = -((1 + wdz2.*sqrt(3)).*(2.*wdx2.^3 - 3.*wdx2.^2.*wdz2 - 3.*wdy2.*wdx2.^2 + 
     9*wdy2.*wdyz.^2 + 2*wdz2.^3 - 3*wdy2.*wdz2.^2 - 3*wdy2.^2.*wdz2 + 2*wdy2.^3).^(1/3)) + 1/3*(wdx2 + wdz2 + wdy2);
 
 clear wdx2 wdxy wdxz wdxy wdy2 wdyz wdxz wdyz wdz2
-clear wdtx wdty wdtz
 
 % Final reliability calculation
 rel = real(min(rel,L3));
