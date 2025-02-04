@@ -4,9 +4,11 @@ function process_flow(imDir,imName,fileType,spatialDimensions,xyzSig,tSig,wSig)
 % data is another format, this is the function to change to adapt the code
 % to your uses.
 %
-% Tif files are read using the function imread_big by Tristan Ursell.
+% OneTif files are read using the function imread_big by Tristan Ursell.
 % See more at: https://www.mathworks.com/matlabcentral/fileexchange/61376-imread_big-read-in-tiff-stacks-larger-than-4gb
 % This allows for reading tifs > 4GB and is faster than tiffReadVolume.
+% It works on ImageJ generted tifs, but not in the more general case, and
+% thus is not used for fileType SequenceT (which uses tiffReadVolume).
 %
 % INPUTS:
 % imDir             = Full path to the folder of image(s) to process
