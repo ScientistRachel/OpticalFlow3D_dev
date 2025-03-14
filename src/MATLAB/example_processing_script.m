@@ -17,11 +17,11 @@ fileType = 'SequenceT';
 spatialDimensions = 3;
 
 %%%% Set up optical flow parameters
-% Spatial smoothing (pixels)
+% Spatial smoothing (voxels)
 xyzSig = 3;
 % Temporal smoothing (frames)
 tSig = 1;
-% Lucas-Kanade neighborhood size
+% Lucas-Kanade neighborhood size (voxels)
 wSig = 4;
 
 %%%% Run the optical flow
@@ -48,11 +48,11 @@ fileType = 'OneTif';
 spatialDimensions = 3;
 
 %%%% Set up optical flow parameters
-% Spatial smoothing (pixels)
+% Spatial smoothing (voxels)
 xyzSig = 3;
 % Temporal smoothing (frames)
 tSig = 1;
-% Lucas-Kanade neighborhood size
+% Lucas-Kanade neighborhood size (voxels)
 wSig = 4;
 
 %%%% Loop through folders

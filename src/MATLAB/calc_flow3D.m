@@ -4,10 +4,21 @@ function [vx,vy,vz,rel] = calc_flow3D(images ,xyzSig, tSig, wSig)
 % the calculations. To peform calculations on an entire timelapse, see
 % parse_flow.m
 %
+% This script uses the convention that (0,0) is located in the upper-left
+% corner of an image. This is inline with conventions used in other
+% programs (e.g., ImageJ/FIJI), but note that it means that positive
+% y-velocities point down, which can be non-intuitive. In MATLAB, rows are
+% the first dimension, so the code adopts the convention that dimension 1 =
+% y and dimension 2 = x.
+% Z = 0 is the first tif image in the multi-tif file, which is dimension =
+% 3 in MATLAB. Positive z-velocity is from the first slice towards the last
+% slice. This may or may not correspond to positive z in the lab space
+% depending on how the images were acquired.
+%
 % USAGE: [vx,vy,vz,rel] = calc_flow3D(images ,xyzSig, tSig, wSig)
 %
 % INPUTS:
-% images = 4D matrix with dimensions N_X, N_Y, N_Z, N_T
+% images = 4D matrix with dimensions N_Y, N_X, N_Z, N_T
 %           N_T should be odd as only the central timepoint will be analyzed.
 %           N_T must be greater than or equal to 3*tSig+1.
 % xyzSig = sigma value for smoothing in all spatial dimensions. Default 3.
@@ -35,7 +46,7 @@ function [vx,vy,vz,rel] = calc_flow3D(images ,xyzSig, tSig, wSig)
 
 % Check that the images are 3D + time
 if length(size(images)) ~= 4
-    error('Error: Input image must be a 4D matrix with dimensions N_X, N_Y, N_Z, N_T')
+    error('Error: Input image must be a 4D matrix with dimensions N_Y, N_X, N_Z, N_T')
 end
 
 % Implement default values if they are not specified
@@ -73,17 +84,17 @@ fsmooth = exp(-y.*y/2/xySig2/xySig2)/sqrt(2*pi)/xySig2;
 gderiv = x/xyzSig/xyzSig;
 gsmooth = 1;
 
-%   Build x-gradient filter kernels (along first dimension)
-xFil1 = (fderiv.*gderiv)';
-yFil1 = (fsmooth.*gsmooth);
-zFil1 = permute(yFil1,[3 1 2]);
-%   Build y-gradient filter kernels (along second dimension)
-xFil2 = (fsmooth.*gsmooth)';
-yFil2 = (fderiv.*gderiv);
-zFil2 = permute(xFil2,[3 2 1]);
+%   Build y-gradient filter kernels (along first dimension)
+yFil1 = (fderiv.*gderiv)';
+xFil1 = (fsmooth.*gsmooth);
+zFil1 = permute(xFil1,[3 1 2]);
+%   Build x-gradient filter kernels (along second dimension)
+yFil2 = (fsmooth.*gsmooth)';
+xFil2 = (fderiv.*gderiv);
+zFil2 = permute(yFil2,[3 2 1]);
 %   Build z-gradient filter kernels (along third dimension)
-xFil3 = (fsmooth.*gsmooth)';
-yFil3 = (fsmooth.*gsmooth);
+yFil3 = (fsmooth.*gsmooth)';
+xFil3 = (fsmooth.*gsmooth);
 zFil3 = permute(fderiv.*gderiv,[3 1 2]);
 
 %   Build t-gradient filter kernels (t = fourth dimension)
@@ -92,16 +103,16 @@ fx = exp(-x.*x/2/xyzSig/xyzSig)/sqrt(2*pi)/xyzSig;
 ft = exp(-t.*t/2/tSig/tSig)/sqrt(2*pi)/tSig;
 gx = 1;
 gt = t/tSig/tSig;
-xFil4 = (fx.*gx)';
-yFil4 = xFil4';
-zFil4 = permute(yFil4,[3 1 2]);
+yFil4 = (fx.*gx)';
+xFil4 = yFil4';
+zFil4 = permute(xFil4,[3 1 2]);
 tFil4 = permute(ft.*gt, [4, 1, 3, 2]);
 
 % Structure tensor -- Lucas Kanade neighborhood filter
 wRange = -ceil(3*wSig):ceil(3*wSig);
 gw = exp(-wRange.*wRange/2/wSig/wSig)/sqrt(2*pi)/wSig;
-xFil5 = (gw)';
-yFil5 = (gw);
+yFil5 = (gw)';
+xFil5 = (gw);
 zFil5 = permute(gw,[3 1 2]);
 
 clear gderiv gsmooth gt gw gx ft fx fsmooth fderiv x y t gw wRange
@@ -111,23 +122,23 @@ clear gderiv gsmooth gt gw gx ft fx fsmooth fderiv x y t gw wRange
 % the temporal gradient requires N_T >= 3*tSig+1.
 % After gradients are calculated, only the central 3 slices are kept
 
-% dx
-dxI = imfilter(imfilter(imfilter(images, xFil1, 'replicate'), yFil1, 'replicate'), zFil1, 'replicate'); % Filtering to calculate the gradient
+% dy (dimension = 1)
+dxI = imfilter(imfilter(imfilter(images, yFil1, 'replicate'), xFil1, 'replicate'), zFil1, 'replicate'); % Filtering to calculate the gradient
 dxI = dxI(:,:,:,NtSlice-1:NtSlice+1); % Only need the slice of interest plus one timepoint before and after for remaining calculations, simplify to save memory
 clear xFil1 yFil1 zFil1
 
-% dy
-dyI = imfilter(imfilter(imfilter(images, xFil2, 'replicate'), yFil2, 'replicate'), zFil2, 'replicate');
+% dx (dimension = 2)
+dyI = imfilter(imfilter(imfilter(images, yFil2, 'replicate'), xFil2, 'replicate'), zFil2, 'replicate');
 dyI = dyI(:,:,:,NtSlice-1:NtSlice+1);
 clear xFil2 yFil2 zFil2
 
-% dz
-dzI = imfilter(imfilter(imfilter(images, xFil3, 'replicate'), yFil3, 'replicate'), zFil3, 'replicate');
+% dz (dimension = 3)
+dzI = imfilter(imfilter(imfilter(images, yFil3, 'replicate'), xFil3, 'replicate'), zFil3, 'replicate');
 dzI = dzI(:,:,:,NtSlice-1:NtSlice+1);
 clear xFil3 yFil3 zFil3
 
-% dz
-dtI = imfilter(imfilter(imfilter(imfilter(images, xFil4, 'replicate'), yFil4, 'replicate'), zFil4, 'replicate'), tFil4, 'replicate');
+% dz (dimension = 4)
+dtI = imfilter(imfilter(imfilter(imfilter(images, yFil4, 'replicate'), xFil4, 'replicate'), zFil4, 'replicate'), tFil4, 'replicate');
 clear images % No longer needed for calculations; clear to save memory
 dtI = dtI(:,:,:,NtSlice-1:NtSlice+1);
 clear xFil4 yFil4 zFil4 tFil4
@@ -142,38 +153,38 @@ clear xFil4 yFil4 zFil4 tFil4
 % the central slice = 2.
 
 % Time componenents
-wdtx = imfilter(imfilter(imfilter(dxI.*dtI, xFil5, 'replicate'), yFil5, 'replicate'), zFil5,'replicate');
+wdtx = imfilter(imfilter(imfilter(dxI.*dtI, yFil5, 'replicate'), xFil5, 'replicate'), zFil5,'replicate');
 wdtx = wdtx(:,:,:,2);
 
-wdty = imfilter(imfilter(imfilter(dyI.*dtI, xFil5, 'replicate'), yFil5, 'replicate'), zFil5,'replicate');
+wdty = imfilter(imfilter(imfilter(dyI.*dtI, yFil5, 'replicate'), xFil5, 'replicate'), zFil5,'replicate');
 wdty = wdty(:,:,:,2);
 
-wdtz = imfilter(imfilter(imfilter(dzI.*dtI, xFil5, 'replicate'), yFil5, 'replicate'), zFil5,'replicate');
+wdtz = imfilter(imfilter(imfilter(dzI.*dtI, yFil5, 'replicate'), xFil5, 'replicate'), zFil5,'replicate');
 wdtz = wdtz(:,:,:,2);   
 
 clear dtI
 
 % Spatial Components
-wdx2 = imfilter(imfilter(imfilter(dxI.*dxI, xFil5, 'replicate'), yFil5, 'replicate'), zFil5,'replicate');
+wdx2 = imfilter(imfilter(imfilter(dxI.*dxI, yFil5, 'replicate'), xFil5, 'replicate'), zFil5,'replicate');
 wdx2 = wdx2(:,:,:,2);
 
-wdxy = imfilter(imfilter(imfilter(dxI.*dyI, xFil5, 'replicate'), yFil5, 'replicate'), zFil5,'replicate');
+wdxy = imfilter(imfilter(imfilter(dxI.*dyI, yFil5, 'replicate'), xFil5, 'replicate'), zFil5,'replicate');
 wdxy = wdxy(:,:,:,2);
 
-wdxz = imfilter(imfilter(imfilter(dxI.*dzI, xFil5, 'replicate'), yFil5, 'replicate'), zFil5,'replicate');
+wdxz = imfilter(imfilter(imfilter(dxI.*dzI, yFil5, 'replicate'), xFil5, 'replicate'), zFil5,'replicate');
 wdxz = wdxz(:,:,:,2);
 
 clear dxI
 
-wdyz = imfilter(imfilter(imfilter(dzI.*dyI, xFil5, 'replicate'), yFil5, 'replicate'), zFil5,'replicate');
+wdyz = imfilter(imfilter(imfilter(dzI.*dyI, yFil5, 'replicate'), xFil5, 'replicate'), zFil5,'replicate');
 wdyz = wdyz(:,:,:,2);
 
-wdy2 = imfilter(imfilter(imfilter(dyI.*dyI, xFil5, 'replicate'), yFil5, 'replicate'), zFil5,'replicate');
+wdy2 = imfilter(imfilter(imfilter(dyI.*dyI, yFil5, 'replicate'), xFil5, 'replicate'), zFil5,'replicate');
 wdy2 = wdy2(:,:,:,2);
 
 clear dyI
 
-wdz2 = imfilter(imfilter(imfilter(dzI.*dzI, xFil5, 'replicate'), yFil5, 'replicate'), zFil5,'replicate');
+wdz2 = imfilter(imfilter(imfilter(dzI.*dzI, yFil5, 'replicate'), xFil5, 'replicate'), zFil5,'replicate');
 wdz2 = wdz2(:,:,:,2);
 
 clear dzI
