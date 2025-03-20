@@ -123,13 +123,13 @@ clear gderiv gsmooth gt gw gx ft fx fsmooth fderiv x y t gw wRange
 % After gradients are calculated, only the central 3 slices are kept
 
 % dy (dimension = 1)
-dxI = imfilter(imfilter(imfilter(images, yFil1, 'replicate'), xFil1, 'replicate'), zFil1, 'replicate'); % Filtering to calculate the gradient
-dxI = dxI(:,:,:,NtSlice-1:NtSlice+1); % Only need the slice of interest plus one timepoint before and after for remaining calculations, simplify to save memory
+dyI = imfilter(imfilter(imfilter(images, yFil1, 'replicate'), xFil1, 'replicate'), zFil1, 'replicate'); % Filtering to calculate the gradient
+dyI = dyI(:,:,:,NtSlice-1:NtSlice+1); % Only need the slice of interest plus one timepoint before and after for remaining calculations, simplify to save memory
 clear xFil1 yFil1 zFil1
 
 % dx (dimension = 2)
-dyI = imfilter(imfilter(imfilter(images, yFil2, 'replicate'), xFil2, 'replicate'), zFil2, 'replicate');
-dyI = dyI(:,:,:,NtSlice-1:NtSlice+1);
+dxI = imfilter(imfilter(imfilter(images, yFil2, 'replicate'), xFil2, 'replicate'), zFil2, 'replicate');
+dxI = dxI(:,:,:,NtSlice-1:NtSlice+1);
 clear xFil2 yFil2 zFil2
 
 % dz (dimension = 3)
@@ -148,7 +148,7 @@ clear xFil4 yFil4 zFil4 tFil4
 % matrices required for the optical flow calculation, incorporating
 % Gaussian weighting into the Lucas-Kanade constraint.
 %
-% Once filtering is done, only the central timepoint is kept to save save
+% Once filtering is done, only the central timepoint is kept to save
 % memory. Because all outputs of the above section are N_X x N_Y x N_Z x 3,
 % the central slice = 2.
 

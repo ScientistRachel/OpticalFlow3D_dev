@@ -1,6 +1,6 @@
 function [vx,vy,rel] = calc_flow2D(images ,xySig, tSig, wSig)
-% The calc_flow3D function calculates optical flow velocities for a single
-% z-stack of images. Surrounding z-stacks in time are necessary to perform
+% The calc_flow2D function calculates optical flow velocities for a single
+% z-slice over time. Surrounding images in time are necessary to perform
 % the calculations. To peform calculations on an entire timelapse, see
 % parse_flow.m
 %
@@ -112,26 +112,26 @@ clear gderiv gsmooth gt gw gx ft fx fsmooth fderiv x y t gw wRange
 % dy (dimension = 1)
 dyI = imfilter(imfilter(images, yFil1, 'replicate'), xFil1, 'replicate'); % Filtering to calculate the gradient
 dyI = dyI(:,:,NtSlice-1:NtSlice+1); % Only need the slice of interest plus one timepoint before and after for remaining calculations, simplify to save memory
-clear xFil1 yFil1 zFil1
+clear xFil1 yFil1
 
 % dx (dimension = 2)
 dxI = imfilter(imfilter(images, yFil2, 'replicate'), xFil2, 'replicate');
 dxI = dxI(:,:,NtSlice-1:NtSlice+1);
-clear xFil2 yFil2 zFil2
+clear xFil2 yFil2
 
 % dt (dimension = 3)
 dtI = imfilter(imfilter(imfilter(images, yFil3, 'replicate'), xFil3, 'replicate'), tFil3, 'replicate');
 clear images % No longer needed for calculations; clear to save memory
 dtI = dtI(:,:,NtSlice-1:NtSlice+1);
-clear xFil3 yFil3 zFil4 tFil3
+clear xFil3 yFil3 tFil3
 
 %% Structure Tensor Inputs %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % The following calculations are for the individual elements of the
 % matrices required for the optical flow calculation, incorporating
 % Gaussian weighting into the Lucas-Kanade constraint.
 %
-% Once filtering is done, only the central timepoint is kept to save save
-% memory. Because all outputs of the above section are N_X x N_Y x N_Z x 3,
+% Once filtering is done, only the central timepoint is kept to save
+% memory. Because all outputs of the above section are N_X x N_Y x 3,
 % the central slice = 2.
 
 % Time componenents
@@ -174,7 +174,7 @@ determinant = (wdx2.*wdy2) - (wdxy.^2);
 vx = ((determinant + eps).^-1).*((wdy2.*-wdtx)+(-wdxy.*-wdty));
 vy = ((determinant + eps).^-1).*((-wdxy.*-wdtx)+(wdx2.*-wdty));
 
-clear wdtx wdty
+clear wdtx wdty wdxy
 
 %% Eigenvalues for Reliability %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % solve det(A^T w A - lamda I) = 0
@@ -182,7 +182,7 @@ clear wdtx wdty
 
 trace = wdx2 + wdy2;
 
-clear wdx2 wdxy wdxy wdy2
+clear wdx2 wdy2
 
 L1 = (trace + sqrt(trace.^2 - 4*determinant))/2;
 L2 = (trace - sqrt(trace.^2 - 4*determinant))/2;
