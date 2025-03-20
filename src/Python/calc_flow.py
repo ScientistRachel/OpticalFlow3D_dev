@@ -98,15 +98,15 @@ def calc_flow2D(images,xySig=3,tSig=1,wSig=4):
     # Spatial gradients require at least N_T = 3 to avoid edge effets, while 
     # the temporal gradient requires N_T >= 3*tSig+1.
     # After gradients are calculated, only the central 3 slices are kept
-    dyI = correlate1d(correlate1d(images, yFil1, axis=1, mode='reflect'), xFil1, axis=2, mode='reflect')
+    dyI = correlate1d(correlate1d(images, yFil1, axis=1, mode='nearest'), xFil1, axis=2, mode='nearest')
     dyI = dyI[NtSlice-1:NtSlice+2,:]
     del xFil1, yFil1
 
-    dxI = correlate1d(correlate1d(images, yFil2, axis=1, mode='reflect'), xFil2, axis=2, mode='reflect')
+    dxI = correlate1d(correlate1d(images, yFil2, axis=1, mode='nearest'), xFil2, axis=2, mode='nearest')
     dxI = dxI[NtSlice-1:NtSlice+2,:]
     del xFil2, yFil2
 
-    dtI = correlate1d(correlate1d(correlate1d(images, yFil3, axis=1, mode='reflect'), xFil3, axis=2, mode='reflect'), tFil3, axis=0, mode='reflect')
+    dtI = correlate1d(correlate1d(correlate1d(images, yFil3, axis=1, mode='nearest'), xFil3, axis=2, mode='nearest'), tFil3, axis=0, mode='nearest')
     dtI = dtI[NtSlice-1:NtSlice+2,:]
     del xFil3, yFil3, tFil3
 
@@ -122,19 +122,19 @@ def calc_flow2D(images,xySig=3,tSig=1,wSig=4):
     # the central slice = 1.
 
     # Time components
-    wdtx = correlate1d(correlate1d(dxI*dtI, yFil4, axis=1, mode='reflect'), xFil4, axis=2, mode='reflect')
+    wdtx = correlate1d(correlate1d(dxI*dtI, yFil4, axis=1, mode='nearest'), xFil4, axis=2, mode='nearest')
     wdtx = wdtx[1,:]
-    wdty = correlate1d(correlate1d(dyI*dtI, yFil4, axis=1, mode='reflect'), xFil4, axis=2, mode='reflect')
+    wdty = correlate1d(correlate1d(dyI*dtI, yFil4, axis=1, mode='nearest'), xFil4, axis=2, mode='nearest')
     wdty = wdty[1,:]
     del dtI
 
     # Spatial Components
-    wdxy = correlate1d(correlate1d(dxI*dyI, yFil4, axis=1, mode='reflect'), xFil4, axis=2, mode='reflect')
+    wdxy = correlate1d(correlate1d(dxI*dyI, yFil4, axis=1, mode='nearest'), xFil4, axis=2, mode='nearest')
     wdxy = wdxy[1,:]
-    wdx2 = correlate1d(correlate1d(dxI*dxI, yFil4, axis=1, mode='reflect'), xFil4, axis=2, mode='reflect')
+    wdx2 = correlate1d(correlate1d(dxI*dxI, yFil4, axis=1, mode='nearest'), xFil4, axis=2, mode='nearest')
     wdx2 = wdx2[1,:]
     del dxI
-    wdy2 = correlate1d(correlate1d(dyI*dyI, yFil4, axis=1, mode='reflect'), xFil4, axis=2, mode='reflect')
+    wdy2 = correlate1d(correlate1d(dyI*dyI, yFil4, axis=1, mode='nearest'), xFil4, axis=2, mode='nearest')
     wdy2 = wdy2[1,:]
     del dyI
     del xFil4, yFil4
@@ -269,19 +269,19 @@ def calc_flow3D(images,xyzSig=3,tSig=1,wSig=4):
     # Spatial gradients require at least N_T = 3 to avoid edge effets, while 
     # the temporal gradient requires N_T >= 3*tSig+1.
     # After gradients are calculated, only the central 3 slices are kept
-    dyI = correlate1d(correlate1d(correlate1d(images, yFil1, axis=2, mode='reflect'), xFil1, axis=3, mode='reflect'), zFil1, axis=1, mode='reflect')
+    dyI = correlate1d(correlate1d(correlate1d(images, yFil1, axis=2, mode='nearest'), xFil1, axis=3, mode='nearest'), zFil1, axis=1, mode='nearest')
     dyI = dyI[NtSlice-1:NtSlice+2,:]
     del xFil1, yFil1, zFil1
 
-    dxI = correlate1d(correlate1d(correlate1d(images, yFil2, axis=2, mode='reflect'), xFil2, axis=3, mode='reflect'), zFil2, axis=1, mode='reflect')
+    dxI = correlate1d(correlate1d(correlate1d(images, yFil2, axis=2, mode='nearest'), xFil2, axis=3, mode='nearest'), zFil2, axis=1, mode='nearest')
     dxI = dxI[NtSlice-1:NtSlice+2,:]
     del xFil2, yFil2, zFil2
 
-    dzI = correlate1d(correlate1d(correlate1d(images, yFil3, axis=2, mode='reflect'), xFil3, axis=3, mode='reflect'), zFil3, axis=1, mode='reflect')
+    dzI = correlate1d(correlate1d(correlate1d(images, yFil3, axis=2, mode='nearest'), xFil3, axis=3, mode='nearest'), zFil3, axis=1, mode='nearest')
     dzI = dzI[NtSlice-1:NtSlice+2,:]
     del xFil3, yFil3, zFil3
 
-    dtI = correlate1d(correlate1d(correlate1d(correlate1d(images, yFil4, axis=2, mode='reflect'), xFil4, axis=3, mode='reflect'), zFil4, axis=1, mode='reflect'), tFil4, axis=0, mode='reflect')
+    dtI = correlate1d(correlate1d(correlate1d(correlate1d(images, yFil4, axis=2, mode='nearest'), xFil4, axis=3, mode='nearest'), zFil4, axis=1, mode='nearest'), tFil4, axis=0, mode='nearest')
     dtI = dtI[NtSlice-1:NtSlice+2,:]
     del xFil4, yFil4, zFil4, tFil4
 
@@ -297,28 +297,28 @@ def calc_flow3D(images,xyzSig=3,tSig=1,wSig=4):
     # the central slice = 1.
 
     # Time components
-    wdtx = correlate1d(correlate1d(correlate1d(dxI*dtI, yFil5, axis=2, mode='reflect'), xFil5, axis=3, mode='reflect'), zFil5, axis=1, mode='reflect')
+    wdtx = correlate1d(correlate1d(correlate1d(dxI*dtI, yFil5, axis=2, mode='nearest'), xFil5, axis=3, mode='nearest'), zFil5, axis=1, mode='nearest')
     wdtx = wdtx[1,:]
-    wdty = correlate1d(correlate1d(correlate1d(dyI*dtI, yFil5, axis=2, mode='reflect'), xFil5, axis=3, mode='reflect'), zFil5, axis=1, mode='reflect')
+    wdty = correlate1d(correlate1d(correlate1d(dyI*dtI, yFil5, axis=2, mode='nearest'), xFil5, axis=3, mode='nearest'), zFil5, axis=1, mode='nearest')
     wdty = wdty[1,:]
-    wdtz = correlate1d(correlate1d(correlate1d(dzI*dtI, yFil5, axis=2, mode='reflect'), xFil5, axis=3, mode='reflect'), zFil5, axis=1, mode='reflect')
+    wdtz = correlate1d(correlate1d(correlate1d(dzI*dtI, yFil5, axis=2, mode='nearest'), xFil5, axis=3, mode='nearest'), zFil5, axis=1, mode='nearest')
     wdtz = wdtz[1,:]
     del dtI
 
     # Spatial Components
-    wdxy = correlate1d(correlate1d(correlate1d(dxI*dyI, yFil5, axis=2, mode='reflect'), xFil5, axis=3, mode='reflect'), zFil5, axis=1, mode='reflect')
+    wdxy = correlate1d(correlate1d(correlate1d(dxI*dyI, yFil5, axis=2, mode='nearest'), xFil5, axis=3, mode='nearest'), zFil5, axis=1, mode='nearest')
     wdxy = wdxy[1,:]
-    wdxz = correlate1d(correlate1d(correlate1d(dxI*dzI, yFil5, axis=2, mode='reflect'), xFil5, axis=3, mode='reflect'), zFil5, axis=1, mode='reflect')
+    wdxz = correlate1d(correlate1d(correlate1d(dxI*dzI, yFil5, axis=2, mode='nearest'), xFil5, axis=3, mode='nearest'), zFil5, axis=1, mode='nearest')
     wdxz = wdxz[1,:]
-    wdx2 = correlate1d(correlate1d(correlate1d(dxI*dxI, yFil5, axis=2, mode='reflect'), xFil5, axis=3, mode='reflect'), zFil5, axis=1, mode='reflect')
+    wdx2 = correlate1d(correlate1d(correlate1d(dxI*dxI, yFil5, axis=2, mode='nearest'), xFil5, axis=3, mode='nearest'), zFil5, axis=1, mode='nearest')
     wdx2 = wdx2[1,:]
     del dxI
-    wdyz = correlate1d(correlate1d(correlate1d(dyI*dzI, yFil5, axis=2, mode='reflect'), xFil5, axis=3, mode='reflect'), zFil5, axis=1, mode='reflect')
+    wdyz = correlate1d(correlate1d(correlate1d(dyI*dzI, yFil5, axis=2, mode='nearest'), xFil5, axis=3, mode='nearest'), zFil5, axis=1, mode='nearest')
     wdyz = wdyz[1,:]
-    wdy2 = correlate1d(correlate1d(correlate1d(dyI*dyI, yFil5, axis=2, mode='reflect'), xFil5, axis=3, mode='reflect'), zFil5, axis=1, mode='reflect')
+    wdy2 = correlate1d(correlate1d(correlate1d(dyI*dyI, yFil5, axis=2, mode='nearest'), xFil5, axis=3, mode='nearest'), zFil5, axis=1, mode='nearest')
     wdy2 = wdy2[1,:]
     del dyI
-    wdz2 = correlate1d(correlate1d(correlate1d(dzI*dzI, yFil5, axis=2, mode='reflect'), xFil5, axis=3, mode='reflect'), zFil5, axis=1, mode='reflect')
+    wdz2 = correlate1d(correlate1d(correlate1d(dzI*dzI, yFil5, axis=2, mode='nearest'), xFil5, axis=3, mode='nearest'), zFil5, axis=1, mode='nearest')
     wdz2 = wdz2[1,:]
     del dzI
     del xFil5, yFil5, zFil5
