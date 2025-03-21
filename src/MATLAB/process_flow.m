@@ -43,6 +43,7 @@ function process_flow(imDir,imName,fileType,spatialDimensions,xyzSig,tSig,wSig)
 %
 % Change Log:
 % 2025/01/31 Rachel M. Lee - Created function
+% 2025/03/20 Rachel M. Lee - Updated for MATLAB 2024b
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %% Check Inputs, Implement Defaults, and Set Up Paths %%%%%%%%%%%%%%%%%%%%%
@@ -186,7 +187,7 @@ end
 % If each processed file contains less than 3*tSig+1 frames, there will be
 % edge effects in the time smoothing. The data will be chunked such that
 % each analyzed frame is processed along with its surrounding frames.
-NtChunk = 3*tSig + 1;
+NtChunk = 2*3*tSig + 1;
 if ~mod(NtChunk,2) % enforce odd number
     NtChunk = NtChunk + 1;
 end
@@ -198,7 +199,12 @@ save([savedir filesep imNameSave '_parameters.mat'],'-v6','xyzSig','tSig','wSig'
 
 %% Processing Loop %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% Because >3*tSig time frames are necessary for processing, some frames at
+disp('Note: Regardless of the input filenames, the first image = frame 1.')
+disp('If your file names start from 0, you will need adjust your')
+disp('indexing accordingly when analyzing the corresponding .mat files.')
+disp(' ')
+
+% Because >2*3*tSig time frames are necessary for processing, some frames at
 % the start and the end of the timelapse will be ignored.
 for hh = 1:NtSlice-1
     disp([char(datetime('now')) ' - No data will be saved for frame ' num2str(hh) ' to avoid edge effects'])

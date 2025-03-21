@@ -39,6 +39,7 @@ function [vx,vy,vz,rel] = calc_flow3D(images ,xyzSig, tSig, wSig)
 %
 % Change Log:
 % 2025/01/27 Rachel M. Lee - Created function
+% 2025/03/20 Rachel M. Lee - Updated for MATLAB 2024b
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -46,7 +47,7 @@ function [vx,vy,vz,rel] = calc_flow3D(images ,xyzSig, tSig, wSig)
 
 % Check that the images are 3D + time
 if length(size(images)) ~= 4
-    error('Error: Input image must be a 4D matrix with dimensions N_Y, N_X, N_Z, N_T')
+    error('ERROR: Input image must be a 4D matrix with dimensions N_Y, N_X, N_Z, N_T')
 end
 
 % Implement default values if they are not specified
@@ -65,11 +66,13 @@ end
 
 % Check image size against tSig
 Nt =  size(images,4);
-if Nt < 3*tSig+1
-    error('Error: Input images will lead to edge effects. N_T must be >= 3*tSig+1')
+if Nt < 6*tSig+1
+    % The kernel size is 3*tSig in forward and back in time (or 6*tSig total)
+    % There is also a central pixel, so need at least 6*tSig+1 images in t
+    error('ERROR: Input images will lead to edge effects. N_T must be >= 6*tSig+1')
 end
 if ~mod(Nt,2) % enforce odd number
-    error('Error: Input images must have an odd number of timepoints. Only the central time point is analyzed')
+    error('ERROR: Input images must have an odd number of timepoints. Only the central time point is analyzed')
 end
 NtSlice = ceil(Nt/2);
 
@@ -118,75 +121,53 @@ zFil5 = permute(gw,[3 1 2]);
 clear gderiv gsmooth gt gw gx ft fx fsmooth fderiv x y t gw wRange
 
 %% Spatial and Temporal Gradients %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Spatial gradients require at least N_T = 3 to avoid edge effets, while 
-% the temporal gradient requires N_T >= 3*tSig+1.
-% After gradients are calculated, only the central 3 slices are kept
+% Spatial gradients require only the frame of interest, while  the temporal
+% gradient requires N_T >= 2*3*tSig+1. Keep only the relevant slice of dtI
+% after it is calculated.
+
+% dt (dimension = 4)
+% In two steps to save memory
+dtI = imfilter(images, tFil4, 'replicate');
+images = images(:,:,:,NtSlice);
+dtI = dtI(:,:,:,NtSlice);
+dtI = imfilter(imfilter(imfilter(dtI, yFil4, 'replicate'), xFil4, 'replicate'), zFil4, 'replicate');
+clear xFil4 yFil4 zFil4 tFil4
 
 % dy (dimension = 1)
 dyI = imfilter(imfilter(imfilter(images, yFil1, 'replicate'), xFil1, 'replicate'), zFil1, 'replicate'); % Filtering to calculate the gradient
-dyI = dyI(:,:,:,NtSlice-1:NtSlice+1); % Only need the slice of interest plus one timepoint before and after for remaining calculations, simplify to save memory
 clear xFil1 yFil1 zFil1
 
 % dx (dimension = 2)
 dxI = imfilter(imfilter(imfilter(images, yFil2, 'replicate'), xFil2, 'replicate'), zFil2, 'replicate');
-dxI = dxI(:,:,:,NtSlice-1:NtSlice+1);
 clear xFil2 yFil2 zFil2
 
 % dz (dimension = 3)
 dzI = imfilter(imfilter(imfilter(images, yFil3, 'replicate'), xFil3, 'replicate'), zFil3, 'replicate');
-dzI = dzI(:,:,:,NtSlice-1:NtSlice+1);
 clear xFil3 yFil3 zFil3
 
-% dz (dimension = 4)
-dtI = imfilter(imfilter(imfilter(imfilter(images, yFil4, 'replicate'), xFil4, 'replicate'), zFil4, 'replicate'), tFil4, 'replicate');
 clear images % No longer needed for calculations; clear to save memory
-dtI = dtI(:,:,:,NtSlice-1:NtSlice+1);
-clear xFil4 yFil4 zFil4 tFil4
+
 
 %% Structure Tensor Inputs %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % The following calculations are for the individual elements of the
 % matrices required for the optical flow calculation, incorporating
 % Gaussian weighting into the Lucas-Kanade constraint.
-%
-% Once filtering is done, only the central timepoint is kept to save
-% memory. Because all outputs of the above section are N_X x N_Y x N_Z x 3,
-% the central slice = 2.
 
 % Time componenents
 wdtx = imfilter(imfilter(imfilter(dxI.*dtI, yFil5, 'replicate'), xFil5, 'replicate'), zFil5,'replicate');
-wdtx = wdtx(:,:,:,2);
-
 wdty = imfilter(imfilter(imfilter(dyI.*dtI, yFil5, 'replicate'), xFil5, 'replicate'), zFil5,'replicate');
-wdty = wdty(:,:,:,2);
-
 wdtz = imfilter(imfilter(imfilter(dzI.*dtI, yFil5, 'replicate'), xFil5, 'replicate'), zFil5,'replicate');
-wdtz = wdtz(:,:,:,2);   
-
 clear dtI
 
 % Spatial Components
 wdx2 = imfilter(imfilter(imfilter(dxI.*dxI, yFil5, 'replicate'), xFil5, 'replicate'), zFil5,'replicate');
-wdx2 = wdx2(:,:,:,2);
-
 wdxy = imfilter(imfilter(imfilter(dxI.*dyI, yFil5, 'replicate'), xFil5, 'replicate'), zFil5,'replicate');
-wdxy = wdxy(:,:,:,2);
-
 wdxz = imfilter(imfilter(imfilter(dxI.*dzI, yFil5, 'replicate'), xFil5, 'replicate'), zFil5,'replicate');
-wdxz = wdxz(:,:,:,2);
-
 clear dxI
-
 wdyz = imfilter(imfilter(imfilter(dzI.*dyI, yFil5, 'replicate'), xFil5, 'replicate'), zFil5,'replicate');
-wdyz = wdyz(:,:,:,2);
-
 wdy2 = imfilter(imfilter(imfilter(dyI.*dyI, yFil5, 'replicate'), xFil5, 'replicate'), zFil5,'replicate');
-wdy2 = wdy2(:,:,:,2);
-
 clear dyI
-
 wdz2 = imfilter(imfilter(imfilter(dzI.*dzI, yFil5, 'replicate'), xFil5, 'replicate'), zFil5,'replicate');
-wdz2 = wdz2(:,:,:,2);
-
 clear dzI
 clear xFil5 yFil5 zFil5
 
