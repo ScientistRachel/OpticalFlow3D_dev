@@ -71,6 +71,7 @@ if ~mod(Nt,2) % enforce odd number
 end
 NtSlice = ceil(Nt/2);
 
+images = double(images); % floating point calculations
 
 %% Set up filters %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %   Common spatial terms

@@ -339,87 +339,14 @@ def calc_flow3D(images,xyzSig=3,tSig=1,wSig=4):
     # solve det(A^T w A - lamda I) = 0
     # (A' w A) = [a=wdx2 b=wdxy c=wdxz ; d=wdxy e=wdy2 f=wdyz ; g=wdxz h=wdyz i=wdz2]
     # det(A^T w A - lambda I) = (a-lambda)(e-lambda)(i-lambda) + 2*b*c*f - c^2(e-lambda) - b^2(i-lamda) - f^2(a-lambda)
-    # %Solutions to the polynomial equation are from Wolfram Alpha
-
-    # Allow for complex eignenvalues
-    wdx2 = wdx2.astype(complex)
-    wdxy = wdxy.astype(complex)
-    wdxz = wdxz.astype(complex)
-    wdy2 = wdy2.astype(complex)
-    wdyz = wdyz.astype(complex)
-    wdz2 = wdz2.astype(complex)
 
     # Solve for the eigenvalues
-    L1 = (2.0*wdx2**3.0 - 3.0*wdx2**2.0*wdz2 - 3.0*wdy2*wdx2**2.0 + np.sqrt(4.0*(-wdx2**2.0 + wdx2*wdz2 + wdy2*wdx2 - 3.0*wdxy**2.0 - 
-    3.0*wdxz**2.0 - 3.0*wdyz**2.0 - wdz2**2.0 + wdy2*wdz2 - wdy2**2.0)**3.0 + (2.0*wdx2**3.0 - 3.0*wdx2**2.0*wdz2 - 
-    3.0*wdy2*wdx2**2.0 + 9.0*wdx2*wdxy**2.0 + 9.0*wdx2*wdxz**2.0 - 18.0*wdx2*wdyz**2.0 - 3.0*wdx2*wdz2**2.0 + 
-    12.0*wdy2*wdx2*wdz2 - 3.0*wdy2**2.0*wdx2 - 18.0*wdxy**2.0*wdz2 + 9.0*wdy2*wdxy**2.0 + 54.0*wdxy*wdxz*wdyz + 
-    9.0*wdxz**2.0*wdz2 - 18.0*wdy2*wdxz**2.0 + 9.0*wdyz**2.0*wdz2 + 9.0*wdy2*wdyz**2.0 + 2.0*wdz2**3.0 - 3.0*wdy2*wdz2**2.0 - 
-    3.0*wdy2**2.0*wdz2 + 2.0*wdy2**3.0)**2.0) + 9.0*wdx2*wdxy**2.0 + 9.0*wdx2*wdxz**2.0 - 18.0*wdx2*wdyz**2.0 - 
-    3.0*wdx2*wdz2**2.0 + 12*wdy2*wdx2*wdz2 - 3.0*wdy2**2.0*wdx2 - 18.0*wdxy**2.0*wdz2 + 9.0*wdy2*wdxy**2.0 + 
-    54.0*wdxy*wdxz*wdyz + 9.0*wdxz**2.0*wdz2 - 18.0*wdy2*wdxz**2.0 + 9.0*wdyz**2.0*wdz2 + 9.0*wdy2*wdyz**2.0 + 
-    2.0*wdz2**3.0 - 3.0*wdy2*wdz2**2.0 - 3.0*wdy2**2.0*wdz2 + 2.0*wdy2**3.0)**(1.0/3.0)/(3.0*2.0**(1.0/3.0))
-    - (2.0**(1.0/3.0)*(-wdx2**2.0 + wdx2*wdz2 + wdy2*wdx2 - 3.0*wdxy**2.0 - 3.0*wdxz**2.0 - 3.0*wdyz**2.0 - wdz2**2.0 + 
-    wdy2*wdz2 - wdy2**2.0))/(3.0*(2.0*wdx2**3.0 - 3.0*wdx2**2.0*wdz2 - 3.0*wdy2*wdx2**2.0 + 
-    np.sqrt(4.0*(-wdx2**2.0 + wdx2*wdz2 + wdy2*wdx2 - 3.0*wdxy**2.0 - 3.0*wdxz**2.0 - 3.0*wdyz**2.0 - wdz2**2.0 + 
-    wdy2*wdz2 - wdy2**2.0)**3.0 + (2.0*wdx2**3.0 - 3.0*wdx2**2.0*wdz2 - 3.0*wdy2*wdx2**2.0 + 9.0*wdx2*wdxy**2.0 + 
-    9.0*wdx2*wdxz**2.0 - 18.0*wdx2*wdyz**2.0 - 3.0*wdx2*wdz2**2.0 + 12*wdy2*wdx2*wdz2 - 3.0*wdy2**2.0*wdx2 
-    - 18.0*wdxy**2.0*wdz2 + 9.0*wdy2*wdxy**2.0 + 54.0*wdxy*wdxz*wdyz + 9.0*wdxz**2.0*wdz2 - 18.0*wdy2*wdxz**2.0 +
-    9.0*wdyz**2.0*wdz2 + 9.0*wdy2*wdyz**2.0 + 2.0*wdz2**3.0 - 3.0*wdy2*wdz2**2.0 - 3.0*wdy2**2.0*wdz2 + 2.0*wdy2**3.0)**2.0) 
-    + 9.0*wdx2*wdxy**2.0 + 9.0*wdx2*wdxz**2.0 - 18.0*wdx2*wdyz**2.0 - 3.0*wdx2*wdz2**2.0 + 12*wdy2*wdx2*wdz2 - 
-    3.0*wdy2**2.0*wdx2 - 18.0*wdxy**2.0*wdz2 + 9.0*wdy2*wdxy**2.0 + 54.0*wdxy*wdxz*wdyz + 9.0*wdxz**2.0*wdz2 - 
-    18.0*wdy2*wdxz**2.0 + 9.0*wdyz**2.0*wdz2 + 9.0*wdy2*wdyz**2.0 + 2.0*wdz2**3.0 - 3.0*wdy2*wdz2**2.0 - 3.0*wdy2**2.0*wdz2 + 
-    2.0*wdy2**3.0)**(1.0/3.0)) + (1.0/3.0)*(wdx2 + wdz2 + wdy2)
-
-    L2 = -((1.0 - wdz2*np.sqrt(3.0))*(2.0*wdx2**3.0 - 3.0*wdx2**2.0*wdz2 - 3.0*wdy2*wdx2**2.0 + 
-    np.sqrt(4.0*(-wdx2**2.0 + wdx2*wdz2 + wdy2*wdx2 - 3.0*wdxy**2.0 - 3.0*wdxz**2.0 - 3.0*wdyz**2.0 - wdz2**2.0 + 
-    wdy2*wdz2 - wdy2**2.0)**3.0 + (2.0*wdx2**3.0 - 3.0*wdx2**2.0*wdz2 - 3.0*wdy2*wdx2**2.0 + 9.0*wdx2*wdxy**2.0 + 
-    9.0*wdx2*wdxz**2.0 - 18.0*wdx2*wdyz**2.0 - 3.0*wdx2*wdz2**2.0 + 12*wdy2*wdx2*wdz2 - 3.0*wdy2**2.0*wdx2 - 
-    18.0*wdxy**2.0*wdz2 + 9.0*wdy2*wdxy**2.0 + 54.0*wdxy*wdxz*wdyz + 9.0*wdxz**2.0*wdz2 - 18.0*wdy2*wdxz**2.0 + 
-    9.0*wdyz**2.0*wdz2 +  wdy2*wdyz**2.0 + 2.0*wdz2**3.0 - 3.0*wdy2*wdz2**2.0 - 3.0*wdy2**2.0*wdz2 + 2.0*wdy2**3.0)**2.0)
-    + 9.0*wdx2*wdxy**2.0 + 9.0*wdx2*wdxz**2.0 - 18.0*wdx2*wdyz**2.0 - 3.0*wdx2*wdz2**2.0 + 12.0*wdy2*wdx2*wdz2 - 
-    3.0*wdy2**2.0*wdx2 - 18.0*wdxy**2.0*wdz2 + 9.0*wdy2*wdxy**2.0 + 54.0*wdxy*wdxz*wdyz + 9.0*wdxz**2.0*wdz2 - 
-    18.0*wdy2*wdxz**2.0 + 9.0*wdyz**2.0*wdz2 + 9.0*wdy2*wdyz**2.0 + 2.0*wdz2**3.0 - 3.0*wdy2*wdz2**2.0 - 
-    3.0*wdy2**2.0*wdz2 + 2.0*wdy2**3.0)**(1.0/3.0))/(6.0*2.0**(1.0/3.0)) + ((1 + wdz2*np.sqrt(3.0))*(-wdx2**2.0 + 
-    wdx2*wdz2 + wdy2*wdx2 - 3.0*wdxy**2.0 - 3.0*wdxz**2.0 - 3.0*wdyz**2.0 - wdz2**2.0 + wdy2*wdz2 - wdy2**2.0))/(3.0*
-    2.0**(2.0/3.0)*(2.0*wdx2**3.0 - 3.0*wdx2**2.0*wdz2 - 3.0*wdy2*wdx2**2.0 + np.sqrt(4.0*(-wdx2**2.0 + wdx2*wdz2 + 
-    wdy2*wdx2 - 3.0*wdxy**2.0 - 3.0*wdxz**2.0 - 3.0*wdyz**2.0 - wdz2**2.0 + wdy2*wdz2 - wdy2**2.0)**3.0 + 
-    (2.0*wdx2**3.0 - 3.0*wdx2**2.0*wdz2 - 3.0*wdy2*wdx2**2.0 + 9.0*wdx2*wdxy**2.0 + 9.0*wdx2*wdxz**2.0 - 18.0*wdx2*wdyz**2.0 - 
-    3.0*wdx2*wdz2**2.0 + 12.0*wdy2*wdx2*wdz2 - 3.0*wdy2**2.0*wdx2 - 18.0*wdxy**2.0*wdz2 + 9.0*wdy2*wdxy**2.0 + 
-    54.0*wdxy*wdxz*wdyz + 9.0*wdxz**2.0*wdz2 - 18.0*wdy2*wdxz**2.0 + 9.0*wdyz**2.0*wdz2 + 9.0*wdy2*wdyz**2.0 + 2.0*wdz2**3.0 
-    - 3.0*wdy2*wdz2**2.0 - 3.0*wdy2**2.0*wdz2 + 2.0*wdy2**3.0)**2.0) + 9.0*wdx2*wdxy**2.0 + 9.0*wdx2*wdxz**2.0 - 
-    18.0*wdx2*wdyz**2.0 - 3.0*wdx2*wdz2**2.0 + 12.0*wdy2*wdx2*wdz2 - 3.0*wdy2**2.0*wdx2 - 18.0*wdxy**2.0*wdz2 + 
-    9.0*wdy2*wdxy**2.0 + 54.0*wdxy*wdxz*wdyz + 9.0*wdxz**2.0*wdz2 - 18.0*wdy2*wdxz**2.0 + 9.0*wdyz**2.0*wdz2 + 
-    9.0*wdy2*wdyz**2.0 + 2.0*wdz2**3.0 - 3.0*wdy2*wdz2**2.0 - 3.0*wdy2**2.0*wdz2 + 2.0*wdy2**3.0)**(1.0/3.0)) + 1.0/3.0*(wdx2 + wdz2 + wdy2)
-    
-    rel = np.real(np.minimum(L1,L2))
-    del L1, L2
-
-    L3 = -((1 + wdz2*np.sqrt(3.0))*(2.0*wdx2**3.0 - 3.0*wdx2**2.0*wdz2 - 3.0*wdy2*wdx2**2.0 + 
-    np.sqrt(4.0*(-wdx2**2.0 + wdx2*wdz2 + wdy2*wdx2 - 3.0*wdxy**2.0 - 3.0*wdxz**2.0 - 3.0*wdyz**2.0 - wdz2**2.0 + 
-    wdy2*wdz2 - wdy2**2.0)**3.0 + (2.0*wdx2**3.0 - 3.0*wdx2**2.0*wdz2 - 3.0*wdy2*wdx2**2.0 + 9.0*wdx2*wdxy**2.0 + 
-    9.0*wdx2*wdxz**2.0 - 18.0*wdx2*wdyz**2.0 - 3.0*wdx2*wdz2**2.0 + 12.0*wdy2*wdx2*wdz2 - 3.0*wdy2**2.0*wdx2 - 
-    18.0*wdxy**2.0*wdz2 + 9.0*wdy2*wdxy**2.0 + 54.0*wdxy*wdxz*wdyz + 9.0*wdxz**2.0*wdz2 - 18.0*wdy2*wdxz**2.0 + 
-    9.0*wdyz**2.0*wdz2 +  wdy2*wdyz**2.0 + 2.0*wdz2**3.0 - 3.0*wdy2*wdz2**2.0 - 3.0*wdy2**2.0*wdz2 + 2.0*wdy2**3.0)**2.0)
-    + 9.0*wdx2*wdxy**2.0 + 9.0*wdx2*wdxz**2.0 - 18.0*wdx2*wdyz**2.0 - 3.0*wdx2*wdz2**2.0 + 12.0*wdy2*wdx2*wdz2 - 
-    3.0*wdy2**2.0*wdx2 - 18.0*wdxy**2.0*wdz2 + 9.0*wdy2*wdxy**2.0 + 54.0*wdxy*wdxz*wdyz + 9.0*wdxz**2.0*wdz2 - 
-    18.0*wdy2*wdxz**2.0 + 9.0*wdyz**2.0*wdz2 + 9.0*wdy2*wdyz**2.0 + 2.0*wdz2**3.0 - 3.0*wdy2*wdz2**2.0 - 
-    3.0*wdy2**2.0*wdz2 + 2.0*wdy2**3.0)**(1.0/3.0))/(6.0*2.0**(1.0/3.0)) + ((1.0 - wdz2*np.sqrt(3.0))*(-wdx2**2.0 + 
-    wdx2*wdz2 + wdy2*wdx2 - 3.0*wdxy**2.0 - 3.0*wdxz**2.0 - 3.0*wdyz**2.0 - wdz2**2.0 + wdy2*wdz2 - wdy2**2.0))/(3.0*
-    2.0**(2.0/3.0)*(2.0*wdx2**3.0 - 3.0*wdx2**2.0*wdz2 - 3.0*wdy2*wdx2**2.0 + np.sqrt(4.0*(-wdx2**2.0 + wdx2*wdz2 + 
-    wdy2*wdx2 - 3.0*wdxy**2.0 - 3.0*wdxz**2.0 - 3.0*wdyz**2.0 - wdz2**2.0 + wdy2*wdz2 - wdy2**2.0)**3.0 + 
-    (2.0*wdx2**3.0 - 3.0*wdx2**2.0*wdz2 - 3.0*wdy2*wdx2**2.0 + 9.0*wdx2*wdxy**2.0 + 9.0*wdx2*wdxz**2.0 - 18.0*wdx2*wdyz**2.0 - 
-    3.0*wdx2*wdz2**2.0 + 12.0*wdy2*wdx2*wdz2 - 3.0*wdy2**2.0*wdx2 - 18.0*wdxy**2.0*wdz2 + 9.0*wdy2*wdxy**2.0 + 
-    54.0*wdxy*wdxz*wdyz + 9.0*wdxz**2.0*wdz2 - 18.0*wdy2*wdxz**2.0 + 9.0*wdyz**2.0*wdz2 + 9.0*wdy2*wdyz**2.0 + 2.0*wdz2**3.0 
-    - 3.0*wdy2*wdz2**2.0 - 3.0*wdy2**2.0*wdz2 + 2.0*wdy2**3.0)**2.0) + 9.0*wdx2*wdxy**2.0 + 9.0*wdx2*wdxz**2.0 - 
-    18.0*wdx2*wdyz**2.0 - 3.0*wdx2*wdz2**2.0 + 12.0*wdy2*wdx2*wdz2 - 3.0*wdy2**2.0*wdx2 - 18.0*wdxy**2.0*wdz2 + 
-    9.0*wdy2*wdxy**2.0 + 54.0*wdxy*wdxz*wdyz + 9.0*wdxz**2.0*wdz2 - 18.0*wdy2*wdxz**2.0 + 9.0*wdyz**2.0*wdz2 + 
-    9.0*wdy2*wdyz**2.0 + 2.0*wdz2**3.0 - 3.0*wdy2*wdz2**2.0 - 3.0*wdy2**2.0*wdz2 + 2.0*wdy2**3.0)**(1.0/3.0)) + 1.0/3.0*(wdx2 + wdz2 + wdy2)
-
-    del wdx2, wdxy, wdxz, wdy2, wdyz, wdz2
-    rel = np.real(np.minimum(rel,L3))
-    del L3
-
+    w = np.array([[wdx2, wdxy, wdxz],[wdxy, wdy2, wdyz],[wdxz, wdyz, wdz2]])
+    del wdx2, wdxy, wdxz, wdy2, wdyz, wdz2    
+    w = np.moveaxis(w,[0,1],[-1,-2])
+    w = w.astype(np.complex64) # Allow for complex eignenvalues
+    rel = np.linalg.eigvals(w)
+    rel = np.real(np.amin(rel,axis=-1))
 
     ### Return Outputs #########################################################
     return vx, vy, vz, rel
