@@ -30,7 +30,8 @@ wSig = 4;
 process_flow(imDir,imName,fileType,spatialDimensions,xyzSig,tSig,wSig)
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%% Example 2: Process multiple folders of experiments, each saved as a single tif
+%% Example 2: Process multiple folders of experiments
+% Each experiment was saved as a single tif containing all Z & T using ImageJ
 
 % Start with a clear workspace
 clc
