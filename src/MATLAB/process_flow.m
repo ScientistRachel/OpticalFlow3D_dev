@@ -1,15 +1,15 @@
 function process_flow(imDir,imName,fileType,spatialDimensions,xyzSig,tSig,wSig)
     % Function to organize commands to calc_flow3D given an image or image
-    % sequence for processing. The script can parse a two tif formats. If your
+    % sequence for processing. The script can parse two tif formats. If your
     % data is another format, this is the function to change to adapt the code
     % to your uses.
     %
     % OneTif files are assumed to be created using ImageJ when reading metadata.
     % These files are read using the function imread_big by Tristan Ursell.
     % See more at: https://www.mathworks.com/matlabcentral/fileexchange/61376-imread_big-read-in-tiff-stacks-larger-than-4gb
-    % This allows for reading tifs > 4GB and is faster than tiffReadVolume.
+    % This allows for reading tifs > 4GB and is faster than TIFFvolume.
     % It works on ImageJ generted tifs, but not in the more general case, and
-    % thus is not used for fileType SequenceT (which uses tiffReadVolume).
+    % thus is not used for fileType SequenceT (which uses TIFF).
     %
     % INPUTS:
     % imDir             = Full path to the folder of image(s) to process
@@ -79,8 +79,8 @@ function process_flow(imDir,imName,fileType,spatialDimensions,xyzSig,tSig,wSig)
             error(['Unexpected number of files for ' imName])
         end
     elseif strcmp(fileType,'SequenceT')
-        if length(list) < 3*tSig+1 % Minimum required for calc_flow
-            error(['Image sequence found for file name ' imName ' only contains ' num2str(length(list)) ' files. Minimum 3*tsig+1 files required.'])
+        if length(list) < 6*tSig+1 % Minimum required for calc_flow
+            error(['Image sequence found for file name ' imName ' only contains ' num2str(length(list)) ' files. Minimum 6*tsig+1 files required.'])
         end
     else
         error('fileType must be either OneTif or SequenceT')
