@@ -520,7 +520,7 @@ def process_flow(imDir,imName,fileType="SequenceT",spatialDimensions=3,xyzSig=3,
             
                 # Save this frame
                 tstr = str(hh+NtSlice)
-                tstr.zfill(4)
+                tstr = tstr.zfill(4)
                 tf.imwrite(str(savedir / imNameSave) + '_vx_t' + tstr + '.tiff',vx, photometric='minisblack')
                 tf.imwrite(str(savedir / imNameSave) + '_vy_t' + tstr + '.tiff',vy, photometric='minisblack')
                 tf.imwrite(str(savedir / imNameSave) + '_vz_t' + tstr + '.tiff',vz, photometric='minisblack')
@@ -545,7 +545,7 @@ def process_flow(imDir,imName,fileType="SequenceT",spatialDimensions=3,xyzSig=3,
             
                 # Save this frame
                 tstr = str(hh+NtSlice)
-                tstr.zfill(4)
+                tstr = tstr.zfill(4)
                 tf.imwrite(str(savedir / imNameSave) + '_vx_t' + tstr + '.tiff',vx, photometric='minisblack')
                 tf.imwrite(str(savedir / imNameSave) + '_vy_t' + tstr + '.tiff',vy, photometric='minisblack')
                 tf.imwrite(str(savedir / imNameSave) + '_rel_t' + tstr + '.tiff',rel, photometric='minisblack')
@@ -576,7 +576,7 @@ def process_flow(imDir,imName,fileType="SequenceT",spatialDimensions=3,xyzSig=3,
             
                 # Save this frame
                 tstr = str(hh+NtSlice)
-                tstr.zfill(4)
+                tstr = tstr.zfill(4)
                 tf.imwrite(str(savedir / imNameSave) + '_vx_t' + tstr + '.tiff',vx, photometric='minisblack')
                 tf.imwrite(str(savedir / imNameSave) + '_vy_t' + tstr + '.tiff',vy, photometric='minisblack')
                 tf.imwrite(str(savedir / imNameSave) + '_vz_t' + tstr + '.tiff',vz, photometric='minisblack')
@@ -604,7 +604,7 @@ def process_flow(imDir,imName,fileType="SequenceT",spatialDimensions=3,xyzSig=3,
             
                 # Save this frame
                 tstr = str(hh+NtSlice)
-                tstr.zfill(4)
+                tstr = tstr.zfill(4)
                 tf.imwrite(str(savedir / imNameSave) + '_vx_t' + tstr + '.tiff',vx, photometric='minisblack')
                 tf.imwrite(str(savedir / imNameSave) + '_vy_t' + tstr + '.tiff',vy, photometric='minisblack')
                 tf.imwrite(str(savedir / imNameSave) + '_rel_t' + tstr + '.tiff',rel, photometric='minisblack')
