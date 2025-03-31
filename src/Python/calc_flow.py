@@ -423,7 +423,7 @@ def process_flow(imDir,imName,fileType="SequenceT",spatialDimensions=3,xyzSig=3,
             fileList.append(f)
     # Now check that the number of files makes sense
     if len(fileList) == 0:
-        sys.exit('ERROR: No image files found. imName: ' + imName + ' imDir: ' + imDir)
+        sys.exit('ERROR: No image files found. imName: ' + imName + ' imDir: ' + str(imDir))
     if fileType=='OneTif':
         if len(fileList) > 1:
             sys.exit('ERROR: Type is OneTif but more than one file was found for imName: ' + imName)
@@ -512,7 +512,7 @@ def process_flow(imDir,imName,fileType="SequenceT",spatialDimensions=3,xyzSig=3,
                 print(str(datetime.now()) + ' - Processing frame ' + str(hh+NtSlice) + '...')
             
                 # Load images
-                images = tf.imread(imDir / imName,key=range(Nz*hh,Nz*(hh+NtChunk)+1))
+                images = tf.imread(imDir / imName,key=range(Nz*hh,Nz*(hh+NtChunk)))
                 images = images.reshape(NtChunk,Nz,Ny,Nx)
 
                 # Run the optical flow
@@ -538,7 +538,7 @@ def process_flow(imDir,imName,fileType="SequenceT",spatialDimensions=3,xyzSig=3,
                 print(str(datetime.now()) + ' - Processing frame ' + str(hh+NtSlice) + '...')
             
                 # Load images
-                images = tf.imread(imDir / imName,key=range(Nz*hh,Nz*(hh+NtChunk)+1))
+                images = tf.imread(imDir / imName,key=range(Nz*hh,Nz*(hh+NtChunk)))
             
                 # Run the optical flow
                 vx,vy,rel = calc_flow2D(images ,xyzSig, tSig, wSig)
