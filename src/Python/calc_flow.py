@@ -429,7 +429,7 @@ def process_flow(imDir,imName,fileType="SequenceT",spatialDimensions=3,xyzSig=3,
             sys.exit('ERROR: Type is OneTif but more than one file was found for imName: ' + imName)
     elif fileType=='SequenceT':
         if len(fileList) < 6*tSig+1: # Minimum requirment for calc_flow
-            sys.exit('ERROR:Image sequence found for file name ' + imName + ' only contains ' + str(len(fileList)) + ' files. Minimum 6*tsig+1 ('+ str(6*tSig+1) + ') files required.')
+            sys.exit('ERROR: Image sequence found for file name ' + imName + ' only contains ' + str(len(fileList)) + ' files. Minimum 6*tsig+1 ('+ str(6*tSig+1) + ') files required.')
     else:
         sys.exit('ERROR: fileType must be either OneTif or SequenceT.')
 
@@ -463,8 +463,6 @@ def process_flow(imDir,imName,fileType="SequenceT",spatialDimensions=3,xyzSig=3,
             Nz = imj["slices"]
         elif spatialDimensions==2:
             Nz = 1
-        if Nt*Nz != len(meta.pages):
-            sys.exit('ERROR: Time points times z-slices does not equal the total number of images')
     elif fileType=='SequenceT':
         Nz = len(meta.pages)
         Nt = len(fileList)
@@ -504,7 +502,9 @@ def process_flow(imDir,imName,fileType="SequenceT",spatialDimensions=3,xyzSig=3,
     
     # Loop through the files to be processed
     if fileType=='OneTif': # assuming a tif made with ImageJ containing all z and all t
-        imName = imName + '.tif'    
+        imName = imName + '.tif'
+        allImages = tf.memmap(imDir / imName) # Does not load images into memory until called later
+
         if spatialDimensions == 3:    
             for hh in range(0,Nt-NtChunk+1): # If you have enough memory, this could become a parfor loop.
             
@@ -512,8 +512,7 @@ def process_flow(imDir,imName,fileType="SequenceT",spatialDimensions=3,xyzSig=3,
                 print(str(datetime.now()) + ' - Processing frame ' + str(hh+NtSlice) + '...')
             
                 # Load images
-                images = tf.imread(imDir / imName,key=range(Nz*hh,Nz*(hh+NtChunk)))
-                images = images.reshape(NtChunk,Nz,Ny,Nx)
+                images = allImages[hh:hh+NtChunk,:]
 
                 # Run the optical flow
                 vx,vy,vz,rel = calc_flow3D(images ,xyzSig, tSig, wSig)
@@ -538,7 +537,7 @@ def process_flow(imDir,imName,fileType="SequenceT",spatialDimensions=3,xyzSig=3,
                 print(str(datetime.now()) + ' - Processing frame ' + str(hh+NtSlice) + '...')
             
                 # Load images
-                images = tf.imread(imDir / imName,key=range(Nz*hh,Nz*(hh+NtChunk)))
+                images = allImages[hh:hh+NtChunk,:]
             
                 # Run the optical flow
                 vx,vy,rel = calc_flow2D(images ,xyzSig, tSig, wSig)
