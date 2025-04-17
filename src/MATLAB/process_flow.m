@@ -243,7 +243,7 @@ function process_flow(imDir,imName,fileType,spatialDimensions,xyzSig,tSig,wSig)
     
         elseif spatialDimensions == 2
     
-                for hh = 1:Nt-NtChunk+1 % If you have enough memory, this could become a parfor loop.
+            for hh = 1:Nt-NtChunk+1 % If you have enough memory, this could become a parfor loop.
             
                 loopStart = datetime('now');
                 disp([char(datetime('now')) ' - Processing frame ' num2str(hh+NtSlice-1) '...'])
@@ -266,7 +266,7 @@ function process_flow(imDir,imName,fileType,spatialDimensions,xyzSig,tSig,wSig)
                 framestime = datetime('now');
                 disp([char(datetime('now')) ' - Frame ' num2str(hh+NtSlice-1) ' saved.  Duration: ' char(framestime-loopStart)])
             
-                end
+            end
     
         else
             error('Spatial Dimension must be 2 or 3')
@@ -349,45 +349,4 @@ function process_flow(imDir,imName,fileType,spatialDimensions,xyzSig,tSig,wSig)
         disp([char(datetime('now')) ' - No data will be saved for frame ' num2str(hh) ' to avoid edge effects'])
     end
 
-end
-
-%% I/O Functions
-% Use TIFF to load in 3D volumes
-function vol = TIFFvolume(filename,Nx,Ny,frames)
-
-    vol = ones(Ny,Nx,frames);
-    intiff = Tiff(filename,"r");
-    for ii = 1:frames-1
-        vol(:,:,ii) = read(intiff);
-        nextDirectory(intiff);
-    end
-    vol(:,:,frames) = read(intiff);
-
-end
-
-% Use TIFF to save float tifs
-function TIFFwrite(filename,A)
-
-    % TIFF Tags
-    tagstruct.ImageLength = size(A,1);
-    tagstruct.ImageWidth = size(A,2);
-    tagstruct.SamplesPerPixel = 1;
-    tagstruct.PlanarConfiguration = Tiff.PlanarConfiguration.Chunky;
-    tagstruct.BitsPerSample = 64;
-    tagstruct.SampleFormat = Tiff.SampleFormat.IEEEFP;
-    tagstruct.Photometric = Tiff.Photometric.MinIsBlack;
-    tagstruct.Compression = Tiff.Compression.LZW;
-
-    outtiff = Tiff(filename,'w8'); % Using bigtiff writing
-    for ii = 1:size(A,3)-1
-        outtiff.setTag(tagstruct);
-        outtiff.write(A(:,:,ii));
-        outtiff.writeDirectory();
-    end
-    outtiff.setTag(tagstruct);
-    outtiff.write(A(:,:,size(A,3)));
-
-    % Close the file
-    outtiff.close();
-    
 end
