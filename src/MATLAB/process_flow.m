@@ -69,6 +69,19 @@ elseif strcmp(fileType,'SequenceT')
     if length(list) < 6*tSig+1 % Minimum required for calc_flow
         error(['Image sequence found for file name ' imName ' only contains ' num2str(length(list)) ' files. Minimum 6*tsig+1 (' num2str(6*tSig+1) ') files required.'])
     end
+
+    % Add natsort to the path to sort file lists
+    if ~exist('natsort','dir')
+        error('Please download the natsort folder for file sorting.  See https://www.mathworks.com/matlabcentral/fileexchange/34464-customizable-natural-order-sort')
+    end
+    addpath('natsort')
+    % Sort the file list for later image loading
+    fileList = cell(length(list),1);
+    for kk = 1:length(list)
+        fileList{kk} = list(kk).name;
+    end
+    fileList = natsort(fileList);
+
 else
     error('fileType must be either OneTif or SequenceT')
 end
@@ -269,7 +282,7 @@ elseif strcmp(fileType,'SequenceT') % assuming 1 tif per timepoint that is a z-s
             % Load images
             images = zeros(Ny,Nx,Nz,NtChunk);
             for jj = 1:NtChunk
-                images(:,:,:,jj) = TIFFvolume([imDir list(jj+hh-1).name],Nz);
+                images(:,:,:,jj) = TIFFvolume([imDir fileList{jj+hh-1}],Nz);
             end
             images = double(images); % For calculations
         
@@ -301,7 +314,7 @@ elseif strcmp(fileType,'SequenceT') % assuming 1 tif per timepoint that is a z-s
             % Load images
             images = zeros(Ny,Nx,NtChunk);
             for jj = 1:NtChunk
-                images(:,:,jj) = TIFFvolume([imDir list(jj+hh-1).name],1);
+                images(:,:,jj) = TIFFvolume([imDir fileList{jj+hh-1}],1);
             end
             images = double(images); % For calculations
         

@@ -13,6 +13,7 @@ import tifffile as tf
 import pandas as pd
 from datetime import datetime
 import sys
+from natsort import natsorted
 
 def calc_flow2D(images,xySig=3,tSig=1,wSig=4):
     """
@@ -433,22 +434,12 @@ def process_flow(imDir,imName,fileType="SequenceT",spatialDimensions=3,xyzSig=3,
     else:
         sys.exit('ERROR: fileType must be either OneTif or SequenceT.')
 
+    # Make sure files are sorted in numerical order not necessarily ASCII order
+    fileList = natsorted(fileList)
+
     # Must be either 2D or 3D processing
     if spatialDimensions < 2 or spatialDimensions > 3:
         sys.exit('ERROR: Number of spatial dimensions must be either 2 or 3.')
-
-    # Set up the saving folder    
-    # Main folder is inside the image directory. 
-    if spatialDimensions==3:
-        savedir = imDir / 'OpticalFlow3D'
-    elif spatialDimensions==2:
-        savedir = imDir / 'OpticalFlow2D'
-    savedir.mkdir(exist_ok=True)
-    # Subfolder is imNameSave.
-    imNameSave = imName.replace('.*','')
-    savedir = savedir / imNameSave
-    savedir.mkdir(exist_ok=True)
-
 
     ### Metadata parsing and parameter saving ##################################
     meta = tf.TiffFile(imDir/ fileList[0]) # Assume first file is representative of whole set
@@ -471,12 +462,24 @@ def process_flow(imDir,imName,fileType="SequenceT",spatialDimensions=3,xyzSig=3,
                 sys.exit('ERROR: More than one z-slice detected for 2D processing')
         elif spatialDimensions==3:
             if Nz <= 1:
-                sys.exit('ERROR: 3D processing requested but Nz = ' + Nz)
+                sys.exit('ERROR: 3D processing requested but Nz = ' + str(Nz))
     
     NtChunk = 6*tSig+1
     if not(NtChunk%2):
         NtChunk = NtChunk+1
     NtSlice = math.ceil(NtChunk/2)-1
+
+    # Set up the saving folder    
+    # Main folder is inside the image directory. 
+    if spatialDimensions==3:
+        savedir = imDir / 'OpticalFlow3D'
+    elif spatialDimensions==2:
+        savedir = imDir / 'OpticalFlow2D'
+    savedir.mkdir(exist_ok=True)
+    # Subfolder is imNameSave.
+    imNameSave = imName.replace('.*','')
+    savedir = savedir / imNameSave
+    savedir.mkdir(exist_ok=True)
 
     # Save parameters
     param = {'xyzSig': [xyzSig],
@@ -590,7 +593,7 @@ def process_flow(imDir,imName,fileType="SequenceT",spatialDimensions=3,xyzSig=3,
             for hh in range(0,Nt-NtChunk+1):
         
                 loopStart = datetime.now()
-                print(str(datetime.now()) + ' - Processing frame ' + str(hh+NtSlice-1) + '...')
+                print(str(datetime.now()) + ' - Processing frame ' + str(hh+NtSlice) + '...')
             
                 # Load images
                 images = tf.imread(imDir / fileList[hh])
