@@ -18,7 +18,7 @@ The actual calculation of optical flow is performed by the functions `calc_flow3
 [vx,vy,vz,rel] = calc_flow3D(images, xyzSig, tSig, wSig)
 ```
 
-In input images should be of the format $N_y \times N_x \times N_z \times N_t$, with the $N_z$ dimension excluded for 2D processing.
+Input images should be of the format $N_y \times N_x \times N_z \times N_t$, with the $N_z$ dimension excluded for 2D processing.
 
 `xyzSig` controls Gaussian spatial smoothing and has a default value of 3. Larger values will remove noise but also remove spatial detail.
 
@@ -38,7 +38,7 @@ process_flow(imDir,imName,fileType,spatialDimensions,xyzSig,tSig,wSig)
 
 `imDir` is the full path to folder of image(s) to process.
 
-`imName` is the name of the image(s) to process. For a single multi-page tif, this is simply the name of the tif file. For an image series composed of multiple tif files, the imName must be specified with a wildcard (*) for the time expression in the file names. For example, for a list files with the names:
+`imName` is the name of the image(s) to process. For a single multi-page tif, this is simply the name of the tif file. For an image series composed of multiple tif files, the imName must be specified with a wildcard (`*`) for the time expression in the file names. For example, for a list files with the names:
 - myexperiment_t000_ch0.tif
 - myexperiment_t001_ch0.tif
 - myexperiment_t002_ch0.tif,
@@ -59,7 +59,7 @@ For each analyzed time point, the function saves four tif files (three for 2D pr
 
 The `example_processing_script.m` file provides an example of using process flow to analyze a set of images. Example 1 shows how to analyze a series of files (i.e., the `'SequenceT'` type), and Example 2 shows how to process multiple folders of `'OneTif'` format files at once.
 
-In `example_analysis_script.m`, the output of the processing script is visualized and analyzed. This analysis requires the image directory and the name of the dataset, as well as metadata about the images. Analysis parameters include a reliability threshold value, and parameters to control the visualization. The output of this script is a series of vector field images colored by magnitude, as well as a plot of the mean magnitude over time.
+In `example_analysis_script.m`, the output of the processing script is visualized and analyzed. This analysis requires the image directory and the name of the dataset, as well as metadata about the images. Analysis parameters include a reliability threshold value and parameters to control the visualization. The output of this script is a series of vector field images colored by magnitude, as well as a plot of the mean magnitude over time.
 
 ## Subfunctions
 
