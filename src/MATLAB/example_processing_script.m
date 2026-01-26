@@ -7,7 +7,7 @@ close all
 
 %%%% Set up information about the experiment files
 % Folder containing sequence of tif files.
-imDir = 'X:\Force Project\GitTests\ImageSequence3D'; 
+imDir = 'C:\fullpath\to\image\files\';
 % File name of images of interest. Insert * as wildcards for values that
 % change across the sequence.
 imName = 'scan_CamA_ch0_CAM1_stack*_488nm_*msec_*msecAbs_000x_000y_000z_0000t_decon'; 
@@ -40,9 +40,9 @@ close all
 
 %%%% Set up information about the experiment files
 % List all folders to be processed.
-% All .tif files in this folder will be processed.
-toProcess = {'X:\Force Project\GitTests\OneTifExample3D\',...
-    'X:\Force Project\GitTests\OneTifExample3D_2\'};
+% All .tif files in each folder will be processed.
+toProcess = {'C:\fullpath\to\image\files\1\',...
+    'C:\fullpath\to\image\files\2\'};
 % There is one tif for the entire time lapse, so this is a "OneTif" type movie
 fileType = 'OneTif';
 % This is 3D data (a z-stack)
