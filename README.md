@@ -23,7 +23,7 @@ File parsing requires four parameters:
 The flow calculation requires three parameters, each related to smoothing of the resulting flow fields. For all three parameters, larger values remove noise at the loss of detailed resolution.
 
 - `xyzSig` sets a sigma for Gaussian smoothing in all three spatial dimensions.
-- `tSig` sets a sigma for Gaussian smoothing in time. A minimal set of time points for the flow calculation for one frame is $6*tSig+1$. The first and last $3*tSig$ time points from each time lapse are excluded to avoid edge effects.
+- `tSig` sets a sigma for Gaussian smoothing in time. A minimal set of time points for the flow calculation for one frame is $ 6\times tSig+1 $ . The first and last $3 \times tSig$ time points from each time lapse are excluded to avoid edge effects.
 - `wSig` sets the size of the Lucas-Kanade neighborhood (see [Background](#background-lucas-kanade-optical-flow)), and will lead to smoothing of the flow over this spatial neighborhood size.
 
 

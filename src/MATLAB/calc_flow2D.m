@@ -11,7 +11,7 @@ function [vx,vy,rel] = calc_flow2D(images ,xySig, tSig, wSig)
 % the first dimension, so the code adopts the convention that dimension 1 =
 % y and dimension 2 = x.
 %
-% USAGE: [vx,vy,vz,rel] = calc_flow3D(images ,xyzSig, tSig, wSig)
+% USAGE: [vx,vy,rel] = calc_flow2D(images,xySig, tSig, wSig)
 %
 % INPUTS:
 % images = 3D matrix with dimensions N_Y, N_X, N_T
