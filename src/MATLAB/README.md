@@ -10,7 +10,7 @@ The package `natsort` is from the [MATLAB File Exchange](https://www.mathworks.c
 
 ## Optical Flow Calculation
 
-The actual calculation of optical flow is performed by the functions `calc_flow3D` and `calc_flow2D`, for 3D and 2D image sequences respectively. Inputs are an image sequence and three smoothing parameters. The only differences in usage between the two functions are (1) whether a 4D or 3D matrix of images is input, and (2) whether $v_z$ is output.
+The actual calculation of optical flow is performed by the functions `calc_flow3D` and `calc_flow2D`, for 3D and 2D image sequences respectively. Inputs are an image sequence and three smoothing parameters. The only differences in usage between the two functions are (1) whether a 4D or 3D matrix of images is input, and (2) whether flow in the axial direction, $v_z$, is output.
 
 ```MATLAB
 [vx,vy,rel] = calc_flow2D(images, xySig, tSig, wSig)
@@ -20,17 +20,17 @@ The actual calculation of optical flow is performed by the functions `calc_flow3
 
 Input images should be of the format $N_y \times N_x \times N_z \times N_t$, with the $N_z$ dimension excluded for 2D processing.
 
-`xyzSig` controls Gaussian spatial smoothing and has a default value of 3. Larger values will remove noise but also remove spatial detail.
+`xyzSig` is the standard deviation used for Gaussian spatial smoothing and has a default value of 3. Larger values will remove noise but also remove spatial detail.
 
-`tSig` controls Gaussian temporal smoothing and has a default value of 1. Larger values remove noise but also remove temporal detail.
+`tSig` is the standard deviation used for Gaussian temporal smoothing and has a default value of 1. Larger values remove noise but also remove temporal detail.
 
-`wSig` sets the size of the Lucas-Kanade neighborhood, which is implemented using Gaussian weighting. Larger values create a larger neighborhood for the linear algebra solution, and will smooth over small spatial features in the flow.
+`wSig` is the standard deviation used for Gaussian weighting of the Lucas-Kanade neighborhood. Larger values create a larger neighborhood for the linear algebra solution, and will smooth over small spatial features in the flow.
 
 ## Image Parsing
 
-The function `process_flow` organizes image sequences into the format required by `calc_flow3D` and `calc_flow2D`. If you have a non-tif file type, this function would be the one to adapt to your images.
+The function `process_flow` organizes image sequences into the format required by `calc_flow3D` and `calc_flow2D`. If you have a non-tif file type, this function must be adapted to your images.
 
-In addition to the three smoothing parameters described in [Calculation](#optical-flow-calculation), this function takes as input details about the images to be processed.
+In addition to the three smoothing parameters described in [Calculation](#optical-flow-calculation), this function requires details about the images to be processed.
 
 ```MATLAB
 process_flow(imDir,imName,fileType,spatialDimensions,xyzSig,tSig,wSig)
@@ -38,7 +38,7 @@ process_flow(imDir,imName,fileType,spatialDimensions,xyzSig,tSig,wSig)
 
 `imDir` is the full path to folder of image(s) to process.
 
-`imName` is the name of the image(s) to process. For a single multi-page tif, this is simply the name of the tif file. For an image series composed of multiple tif files, the imName must be specified with a wildcard (`*`) for the time expression in the file names. For example, for a list files with the names:
+`imName` is the name of the image(s) to process. For a single multi-page tif, this is simply the name of the tif file. For an image series composed of multiple tif files, the imName must be specified with a wildcard (`*`) for the time expression in the file names. For example, for a list of files with the names:
 - myexperiment_t000_ch0.tif
 - myexperiment_t001_ch0.tif
 - myexperiment_t002_ch0.tif,
@@ -53,7 +53,7 @@ the correct ImName would be `'myexperiment_t*_ch0'`.
 
 The function `process_flow` excludes the first and last $3 \times tSig$ time points from analysis to avoid edge effects.
 
-For each analyzed time point, the function saves four tif files (three for 2D processing). These files correspond to the $v_x$, $v_y$, $v_z$, and reliability values for that time point. Each tif is saved with float precision.
+For each analyzed time point, the function saves four tif files (three for 2D processing). These files correspond to the intensity changes in each directory ($v_x$, $v_y$, $v_z$), and reliability values (rel) for that time point. Each tif is saved with float precision.
 
 ## Example Scripts
 
